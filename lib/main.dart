@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:visit_me/place_detail_screen.dart';
 
 void main() {
   // Create an application
   Widget app = MaterialApp(
     title: 'Visit Me',
-    home: accountScreen,
+    home: PlaceDetailScreen(),
     debugShowCheckedModeBanner: false,
   );
 
