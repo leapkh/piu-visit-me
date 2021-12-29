@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:visit_me/new_review_screen.dart';
 import 'package:visit_me/place_detail_screen.dart';
 
 void main() {
@@ -8,6 +9,10 @@ void main() {
     title: 'Visit Me',
     home: PlaceDetailScreen(),
     debugShowCheckedModeBanner: false,
+    /*routes: {
+      '/': (_) => PlaceDetailScreen(),
+      '/NewReviewScreen': (_) => NewReviewScreen()
+    },*/
   );
 
   // Run the app

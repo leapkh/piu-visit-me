@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:visit_me/new_review_screen.dart';
 
 class PlaceDetailScreen extends StatefulWidget {
   @override
@@ -66,7 +67,13 @@ class _State extends State<PlaceDetailScreen> {
 
   Widget get photosSectionWidget => Text('This is Photos section.');
 
-  Widget get reviewsSectionWidget => Text('This is Reviews section.');
+  Widget get reviewsSectionWidget {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: ElevatedButton(
+          onPressed: onAddReviewClick, child: Text('Add Your Review')),
+    );
+  }
 
   Widget sectionTitleWidget(String title) {
     return Padding(
@@ -321,5 +328,17 @@ class _State extends State<PlaceDetailScreen> {
         _isLoading = false;
       });
     });
+  }
+
+  // Listeners
+  void onAddReviewClick() async {
+    // *** Using push()
+    final placeName = 'Royal Palace';
+    final route = MaterialPageRoute(builder: (_) => NewReviewScreen(placeName));
+    final ratingData = await Navigator.push(context, route);
+    print('Rating value: ' + ratingData['rating'].toString());
+    print('Feedback ' + ratingData['feedback']);
+    // *** Using pushName()
+    //Navigator.pushNamed(context, '/NewReviewScreen');
   }
 }
