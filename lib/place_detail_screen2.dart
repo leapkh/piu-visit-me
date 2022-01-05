@@ -12,18 +12,14 @@ class _State extends State<PlaceDetailScreen> {
   String _currentMenuItem = 'About';
   bool _isLoading = true;
   Place? _place;
+  Future<Place>? _futurePlace;
 
   @override
   void initState() {
     super.initState();
 
     // Load place info from the API
-    _loadPlaceInfo().then((place) {
-      setState(() {
-        _isLoading = false;
-        _place = place;
-      });
-    });
+    _futurePlace = _loadPlaceInfo();
   }
 
   @override
@@ -35,10 +31,34 @@ class _State extends State<PlaceDetailScreen> {
 
   // Create PlaceDetailScreen body
   Widget get placeDetailScreenBody {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
+    return FutureBuilder<Place>(
+      future: _futurePlace,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          // Completed state
+          if (snapshot.hasError) {
+            // Completed with error
+            return errorWidget;
+          } else {
+            // Completed successfully
+            _place = snapshot.data;
+            return successWidget;
+          }
+        } else {
+          // Uncompleted state
+          return loadingWidget;
+        }
+      },
+    );
+  }
 
+  Widget get loadingWidget => Center(child: CircularProgressIndicator());
+
+  Widget get errorWidget => Center(
+        child: Text('Server error. Please try again later.'),
+      );
+
+  Widget get successWidget {
     List<Widget> columnChildren = [
       placeDetailTopBlock,
       placeDetailMenu,
@@ -329,6 +349,7 @@ class _State extends State<PlaceDetailScreen> {
 
   Future<Place> _loadPlaceInfo() async {
     await Future.delayed(Duration(seconds: 2));
+    //throw Exception();
     return Place(1, 'Royal Palace', 'This is Royal Palace.',
         ['http://somedomain.com/royal-palace.jpg'], 'Phnom Penh');
   }
