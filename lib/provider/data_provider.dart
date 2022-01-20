@@ -1,30 +1,28 @@
 import 'package:visit_me/model/home_data.dart';
 import 'package:visit_me/model/place.dart';
+import 'package:http/http.dart' as api;
+import 'dart:convert';
 
 class DataProvider {
-  static Future<HomeData> loadHomeData() async {
-    await Future.delayed(const Duration(seconds: 2));
-    return HomeData([
-      'https://visit-me.s3.ap-southeast-1.amazonaws.com/img_royal_palace.jpg',
-      'https://visit-me.s3.ap-southeast-1.amazonaws.com/img_national_museum.jpg'
-    ], [
-      Place(
-          1,
-          'Royal Palace',
-          'This is royal palace.',
-          [
-            'https://visit-me.s3.ap-southeast-1.amazonaws.com/img_royal_palace.jpg'
-          ],
-          'Phnom Penh')
-    ], [
-      Place(
-          1,
-          'Royal Palace',
-          'This is royal palace.',
-          [
-            'https://visit-me.s3.ap-southeast-1.amazonaws.com/img_royal_palace.jpg'
-          ],
-          'Phnom Penh')
-    ]);
+  static Future<HomeData?> loadHomeData() async {
+    
+    try{
+      // Make a GET request to the server
+      final serverUrl = Uri.parse('http://localhost/test/home-data.json');
+      final response = await api.get(serverUrl);
+      if(response.statusCode != 200){
+        throw Exception('Unexpected error.');
+      }
+
+      final responseBody = response.body;
+      Map<String, dynamic> mapObject = jsonDecode(responseBody);
+
+      return HomeData.fromMap(mapObject);
+    } catch(ex){
+      print('Error while converting from map object to HomeData object.');
+      print(ex.toString());
+      return null;
+    }
+    
   }
 }
