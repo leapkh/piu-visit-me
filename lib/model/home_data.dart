@@ -27,5 +27,6 @@ class HomeData {
 
   String toJson() => json.encode(toMap());
 
-  factory HomeData.fromJson(String source) => HomeData.fromMap(json.decode(source));
+  factory HomeData.fromJson(String source) =>
+      HomeData.fromMap(json.decode(source));
 }

@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:visit_me/model/place.dart';
+import 'package:visit_me/model/review.dart';
 import 'package:visit_me/new_review_screen.dart';
 
 class PlaceDetailScreen extends StatefulWidget {
+  final Place place;
+
+  PlaceDetailScreen(this.place);
+
   @override
   State<StatefulWidget> createState() => _State();
 }
 
 class _State extends State<PlaceDetailScreen> {
   String _currentMenuItem = 'About';
-  bool _isLoading = true;
-  Place? _place;
-  Future<Place>? _futurePlace;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Load place info from the API
-    _futurePlace = _loadPlaceInfo();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,24 +25,25 @@ class _State extends State<PlaceDetailScreen> {
 
   // Create PlaceDetailScreen body
   Widget get placeDetailScreenBody {
-    return FutureBuilder<Place>(
-      future: _futurePlace,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          // Completed state
-          if (snapshot.hasError) {
-            // Completed with error
-            return errorWidget;
-          } else {
-            // Completed successfully
-            _place = snapshot.data;
-            return successWidget;
-          }
-        } else {
-          // Uncompleted state
-          return loadingWidget;
-        }
-      },
+    List<Widget> columnChildren = [
+      placeDetailTopBlock,
+      placeDetailMenu,
+      Divider(),
+    ];
+
+    if (_currentMenuItem == 'About') {
+      columnChildren.addAll(aboutSectionWidgets);
+    } else if (_currentMenuItem == 'Photos') {
+      columnChildren.add(photosSectionWidget);
+    } else {
+      columnChildren.add(reviewsSectionWidget);
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: columnChildren,
+      ),
     );
   }
 
@@ -82,10 +77,10 @@ class _State extends State<PlaceDetailScreen> {
   }
 
   List<Widget> get aboutSectionWidgets => [
-        sectionTitleWidget(_place!.name),
+        sectionTitleWidget(widget.place.name),
         ratingAndReviews,
-        iconAndTextRow(Icons.info, _place!.description),
-        iconAndTextRow(Icons.place, _place!.address),
+        iconAndTextRow(Icons.info, widget.place.description),
+        iconAndTextRow(Icons.place, widget.place.address),
         sectionTitleWidget('Related Palces'),
         relatedPalcesListView,
       ];
@@ -130,9 +125,7 @@ class _State extends State<PlaceDetailScreen> {
   Widget get placeDetailTopBlock {
     return Stack(
       children: [
-        Image.asset(
-          'lib/images/royal-palace.jpg',
-        ),
+        Image.network(widget.place.imageUrls.first),
         placeDetailTopBar
       ],
     );
@@ -358,10 +351,12 @@ class _State extends State<PlaceDetailScreen> {
   void onAddReviewClick() async {
     // *** Using push()
     final placeName = 'Royal Palace';
-    final route = MaterialPageRoute(builder: (_) => NewReviewScreen(placeName));
-    final ratingData = await Navigator.push(context, route);
-    print('Rating value: ' + ratingData['rating'].toString());
-    print('Feedback ' + ratingData['feedback']);
+    final route =
+        MaterialPageRoute<Review>(builder: (_) => NewReviewScreen(placeName));
+    final review = await Navigator.push(context, route);
+    if (review != null) {
+      print('${review.reviewer}-${review.comment}');
+    }
     // *** Using pushName()
     //Navigator.pushNamed(context, '/NewReviewScreen');
   }

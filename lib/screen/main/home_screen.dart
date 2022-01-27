@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:visit_me/model/home_data.dart';
 import 'package:visit_me/model/place.dart';
+import 'package:visit_me/place_detail_screen2.dart';
 import 'package:visit_me/provider/data_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -52,9 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget get bodyContentWidget {
     return Column(
       children: [
-        Expanded(child: slideShowWidget, flex: 4,),
-        Expanded(child: nearMeWidget, flex: 3,),
-        Expanded(child: topPlacesWidget, flex: 3,),
+        Expanded(
+          child: slideShowWidget,
+          flex: 4,
+        ),
+        Expanded(
+          child: nearMeWidget,
+          flex: 3,
+        ),
+        Expanded(
+          child: topPlacesWidget,
+          flex: 3,
+        ),
       ],
     );
   }
@@ -62,16 +72,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget get slideShowWidget {
     return Text('TODO');
   }
+
   Widget get nearMeWidget {
-    return  Column(
+    return Column(
       children: [
         sectionTitleWidget('Near Me'),
         Expanded(child: placeListWidget(homeData!.nearMePlaces))
       ],
     );
   }
+
   Widget get topPlacesWidget {
-    return  Column(
+    return Column(
       children: [
         sectionTitleWidget('Top Places'),
         Expanded(child: placeListWidget(homeData!.topPlaces))
@@ -79,35 +91,56 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget sectionTitleWidget(String title){
+  Widget sectionTitleWidget(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 18),),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18),
+          ),
           const Text('More')
         ],
       ),
     );
   }
 
-  Widget placeListWidget(List<Place> places){
-    return ListView.builder(padding: const EdgeInsets.all(8), scrollDirection: Axis.horizontal, itemCount: places.length,  itemBuilder: (context, index){
-      return placeItemWidget(places[index]);
-    });
+  Widget placeListWidget(List<Place> places) {
+    return ListView.builder(
+        padding: const EdgeInsets.all(8),
+        scrollDirection: Axis.horizontal,
+        itemCount: places.length,
+        itemBuilder: (context, index) {
+          return placeItemWidget(places[index]);
+        });
   }
 
-  Widget placeItemWidget(Place place){
-    return Column(
-      children: [
-        Expanded(child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: ClipRRect(child: Image.network(place.imageUrls.first, width: 200, fit: BoxFit.cover,), borderRadius: BorderRadius.circular(8),),
-        )),
-        Text(place.name)
-      ],
+  Widget placeItemWidget(Place place) {
+    return GestureDetector(
+      onTap: () {
+        final route =
+            MaterialPageRoute(builder: (_) => PlaceDetailScreen(place));
+        Navigator.push(context, route);
+      },
+      child: Column(
+        children: [
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: ClipRRect(
+              child: Image.network(
+                place.imageUrls.first,
+                width: 200,
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          )),
+          Text(place.name)
+        ],
+      ),
     );
   }
-
 }
