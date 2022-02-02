@@ -3,6 +3,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:visit_me/model/place.dart';
 import 'package:visit_me/model/review.dart';
 import 'package:visit_me/new_review_screen.dart';
+import 'package:visit_me/provider/data_provider.dart';
 
 class PlaceDetailScreen extends StatefulWidget {
   final Place place;
@@ -15,6 +16,17 @@ class PlaceDetailScreen extends StatefulWidget {
 
 class _State extends State<PlaceDetailScreen> {
   String _currentMenuItem = 'About';
+
+  List<Review> reviews = [];
+  bool isLoading = true;
+  bool isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadReviews();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +100,29 @@ class _State extends State<PlaceDetailScreen> {
   Widget get photosSectionWidget => Text('This is Photos section.');
 
   Widget get reviewsSectionWidget {
-    return Padding(
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (isError) {
+      return const Center(
+          child: Text('Error while loading reviews from the server.'));
+    }
+
+    final listView = ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: reviews.length,
+        itemBuilder: (_, index) {
+          final review = reviews[index];
+          return ListTile(
+              title: Text(review.reviewer), subtitle: Text(review.comment));
+        });
+    final addButton = Padding(
       padding: const EdgeInsets.all(16),
       child: ElevatedButton(
           onPressed: onAddReviewClick, child: Text('Add Your Review')),
+    );
+    return Column(
+      children: [listView, addButton],
     );
   }
 
@@ -355,9 +386,24 @@ class _State extends State<PlaceDetailScreen> {
         MaterialPageRoute<Review>(builder: (_) => NewReviewScreen(placeName));
     final review = await Navigator.push(context, route);
     if (review != null) {
-      print('${review.reviewer}-${review.comment}');
+      setState(() {
+        reviews.insert(0, review);
+      });
     }
     // *** Using pushName()
     //Navigator.pushNamed(context, '/NewReviewScreen');
+  }
+
+  void loadReviews() {
+    DataProvider.loadReviews(widget.place.id).then((value) {
+      setState(() {
+        reviews = value;
+        isLoading = false;
+      });
+    }).catchError((error) {
+      print('Error: $error');
+      isLoading = false;
+      isError = true;
+    });
   }
 }

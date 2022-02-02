@@ -1,10 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:visit_me/main_screen.dart';
 import 'package:visit_me/new_review_screen.dart';
 import 'package:visit_me/place_detail_screen2.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase library
+  await Firebase.initializeApp();
   // Create an application
   Widget app = const MaterialApp(
     title: 'Visit Me',
